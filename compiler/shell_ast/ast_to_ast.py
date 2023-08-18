@@ -215,6 +215,20 @@ def replace_ast_regions(ast_objects, trans_options):
                     if(preprocessed_ast_object.will_anything_be_replaced() or original_text is None):
                         preprocessed_asts.append(preprocessed_ast_object.ast)
                     else:
+                        # This is a hack to write var assignments to the PO file, read by the scheduler
+                        if trans_options.mode is TransformationType.SPECULATIVE:
+                            text_to_output = get_shell_from_ast([preprocessed_ast_object.ast], original_text)
+                            ## Generate an ID
+                            df_region_id = trans_options.get_next_id()
+                            loop_id = trans_options.get_current_loop_id()
+                            if df_region_id == 0:
+                                predecessors = []
+                            else:
+                                predecessors = [df_region_id - 1]
+                            ## Write to a file indexed by its ID
+                            util_spec.save_df_region(text_to_output, trans_options, df_region_id, predecessors)
+                            ## TODO: Add an entry point to spec through normal PaSh
+
                         preprocessed_asts.append(UnparsedScript(original_text))
 
     ## Close the final dataflow region
