@@ -34,7 +34,7 @@ if [[ "$daemon_response" == *"OK:"* ]]; then
 
     ## TODO: Restore the variables (doesn't work currently because variables are printed using `env`)
     pash_redir_output echo "$$: (2) Recovering script variables from: $output_variable_file"
-    # source "$RUNTIME_DIR/pash_source_declare_vars.sh" "$output_variable_file"
+    source "$RUNTIME_DIR/pash_source_declare_vars.sh" "$output_variable_file"
 
     pash_redir_output echo "$$: (2) Recovering stdout from: $stdout_file"
     cat "${stdout_file}"
