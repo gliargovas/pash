@@ -26,18 +26,24 @@ daemon_response=$(pash_spec_communicate_scheduler "$msg") # Blocking step, daemo
 ## Receive an exit code
 if [[ "$daemon_response" == *"OK:"* ]]; then
     # shellcheck disable=SC2206
+
     response_args=($daemon_response)
     pash_redir_output echo "$$: (2) Scheduler responded: $daemon_response"
+
     cmd_exit_code=${response_args[1]}
     output_variable_file=${response_args[2]}
     stdout_file=${response_args[3]}
 
+    pash_redir_output echo "$$: (2) Recovering stdout from: $stdout_file"
+    cat "${stdout_file}"
+
     ## TODO: Restore the variables (doesn't work currently because variables are printed using `env`)
+    ## GL: Moved this after printing stdout because it sometimes caused $stdout_file value to change
+    ## printing the wrong output.
+    ## This is something we might want to address by properly filtering the variable file instead.
     pash_redir_output echo "$$: (2) Recovering script variables from: $output_variable_file"
     source "$RUNTIME_DIR/pash_source_declare_vars.sh" "$output_variable_file"
 
-    pash_redir_output echo "$$: (2) Recovering stdout from: $stdout_file"
-    cat "${stdout_file}"
 elif [[ "$daemon_response" == *"UNSAFE:"* ]]; then
     pash_redir_output echo "$$: (2) Scheduler responded: $daemon_response"
     pash_redir_output echo "$$: (2) Executing command: $pash_speculative_command_id"
